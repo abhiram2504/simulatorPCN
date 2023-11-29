@@ -1,61 +1,63 @@
-import networkx as nx
-import matplotlib.pyplot as plt
-import numpy as np
-import random
-
-# creating a simple graph
-G = nx.Graph()
-
-
-
-
 '''
 This uses a random graph
 num_nodes = 10
 #this is the probability between an edge
 probability = 0.4
 G_temp = nx.random_graphs.erdos_renyi_graph(num_nodes, probability)
+
+Goal is to check how we can use comman randomesses for routing. 
+
+Demand matrix. How much each person wants to send to another perosn.
+
+Look into routing policies. Measeure the success rate of transactions. 
 '''
 
-G = nx.Graph()
+import networkx as nx
+import matplotlib.pyplot as plt
+import random
 
-# Add nodes (at least 5 nodes)
-nodes = [1, 2, 3, 4, 5, 6]
-G.add_nodes_from(nodes)
+# Use a pre-built weighted graph (karate club graph in this case)
+G = nx.karate_club_graph()
 
-# Add edges to make it a complete graph
-for i in range(len(nodes)):
-    for j in range(i + 1, len(nodes)):
-        G.add_edge(nodes[i], nodes[j], balance = 20)
+# Add random weights to edges to represent channel capacities
+for u, v in G.edges():
+    G[u][v]['weight'] = random.randint(1, 10)
 
+# Number of transactions to perform
+num_transactions = 5
 
-edges_to_remove = [(1, 2), (3, 4), (3,6), (2,5)]
-G.remove_edges_from(edges_to_remove)
+for transaction in range(num_transactions):
+    # Now I will choose a random src and dest
+    src = random.choice(list(G.nodes))
+    dest = random.choice(list(G.nodes))
+    print(f"\nTransaction {transaction + 1}: The src is {src}, and the dest is {dest}.")
 
-#Now I will choose a random src and dest
-src = random.choice(nodes)
-dest = random.choice(nodes)
-print(f"The src is: {src}, and the dest is: {dest}.")
+    # Shortest path b/w src and dest
+    shortest_path = nx.shortest_path(G, source=src, target=dest, weight='weight')
 
-#shortest path b/w src and dest
-shortest_path = nx.shortest_path(G, source=src, target=dest)
+    transaction_amt = 5  # Adjust transaction amount as needed
 
-tranaction_amt = 10
-if len(shortest_path) > 1:
-    # Update balance for the edge between src and dest
-    for i in range(len(shortest_path) - 1):
-        u, v = shortest_path[i], shortest_path[i + 1]
-        G[u][v]['balance'] -= tranaction_amt
+    # Check if transaction is feasible based on channel capacities
+    feasible_transaction = all(G[u][v]['weight'] >= transaction_amt for u, v in zip(shortest_path, shortest_path[1:]))
 
-    # Display the updated balances on the edges
-    print(f"Balances after transaction:")
-    for u, v in G.edges():
-        balance = G[u][v]['balance']
-        print(f"Edge ({u}, {v}): {balance}")
+    if feasible_transaction:
+        # Update balance for the edge between src and dest
+        for u, v in zip(shortest_path, shortest_path[1:]):
+            G[u][v]['weight'] -= transaction_amt
 
+       
 
+    else:
+        print("Transaction failed due to insufficient capacity.")
+
+ # Display the updated capacities on the edges
+print("Capacities after transaction:")
+for u, v in G.edges():
+    capacity = G[u][v]['weight']
+    print(f"Edge ({u}, {v}): {capacity}")
+
+# Display the final graph after all transactions
 nx.draw(G, with_labels=True)
-plt.title("Graph")
+plt.title("Final Graph with Capacities")
 plt.show()
-
 
