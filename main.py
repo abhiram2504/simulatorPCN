@@ -17,6 +17,7 @@ import matplotlib.pyplot as plt
 import random
 
 # Use a pre-built weighted graph (karate club graph in this case)
+#this is an inbuild grapgh
 G = nx.karate_club_graph()
 
 # Add random weights to edges to represent channel capacities
@@ -35,7 +36,7 @@ for transaction in range(num_transactions):
     # Shortest path b/w src and dest
     shortest_path = nx.shortest_path(G, source=src, target=dest, weight='weight')
 
-    transaction_amt = 5  # Adjust transaction amount as needed
+    transaction_amt = random.randint(0,10)
 
     # Check if transaction is feasible based on channel capacities
     feasible_transaction = all(G[u][v]['weight'] >= transaction_amt for u, v in zip(shortest_path, shortest_path[1:]))
