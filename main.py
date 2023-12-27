@@ -2,6 +2,8 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import random
 
+#performs the transaction for the shortest path. If possible transaction then updates teh graph and returns true else prints error
+#message
 def try_alternative_paths(G, src, dest, transaction_amt):
     # Try the shortest path as an alternative
     shortest_path = nx.shortest_path(G, source=src, target=dest, weight='weight')
@@ -14,18 +16,18 @@ def try_alternative_paths(G, src, dest, transaction_amt):
         print("Shortest path transaction failed due to insufficient capacity.")
         return False
 
-# Use a pre-built weighted graph (karate club graph in this case)
+#Using a pre built graph: https://networkx.org/documentation/stable/auto_examples/graph/plot_karate_club.html#sphx-glr-auto-examples-graph-plot-karate-club-py 
 G = nx.karate_club_graph()
 
 # Add random weights to edges to represent channel capacities
 for u, v in G.edges():
-    G[u][v]['weight'] = random.randint(1, 10)
+    G[u][v]['weight'] = random.randint(1, 100)
 
 # Number of transactions to perform
-num_transactions = 5
+num_transactions = int(input("Enter number of transactions: "))
 
 for transaction in range(num_transactions):
-    # Now I will choose a random src and dest
+    # Now I will choose a random src and dest from the list of nodes from the grapgh
     src = random.choice(list(G.nodes))
     dest = random.choice(list(G.nodes))
     print(f"\nTransaction {transaction + 1}: The src is {src}, and the dest is {dest}.")
