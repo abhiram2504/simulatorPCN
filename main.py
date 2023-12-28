@@ -10,6 +10,7 @@ def try_shortest_paths(G, src, dest, transaction_amt):
     #checks if there is a path between the src and the destination (for the shortest path)
     feasible_transaction = all(G[u][v]['weight'] >= transaction_amt for u, v in zip(shortest_path, shortest_path[1:]))
     if feasible_transaction:
+        #this creates pairs for the shortest path, like for abcd, it creates paris, ab bc, cd.
         for u, v in zip(shortest_path, shortest_path[1:]):
             G[u][v]['weight'] -= transaction_amt
         return True
@@ -39,7 +40,7 @@ for transaction in range(num_transactions):
 
     # First, try the widest path, this takes a lot time as in larger grapghs liek this, ti takes a lot of time to find all the grapphs
     paths = nx.all_simple_paths(G, source=src, target=dest)
-    #looking for a path with the smallest weight!
+    #looking for a path with the smallest weight!, widest path algo, boolean. 
     widest_path = max(paths, key=lambda path: min(G[u][v]['weight'] for u, v in zip(path, path[1:])), default=None)
 
     # If the widest path is found and use, does not check for transaction here, just checks if there are edges present.
@@ -51,7 +52,6 @@ for transaction in range(num_transactions):
                 G[u][v]['weight'] -= transaction_amt
         else:
             print("Widest path transaction failed due to insufficient capacity.")
-            # Try alternative paths
             #this is basically the shortest path.
             if not try_shortest_paths(G, src, dest, transaction_amt):
                 print("All transaction attempts failed.")
@@ -66,3 +66,6 @@ for u, v in G.edges():
 nx.draw(G, with_labels=True)
 plt.title("Final Graph with Capacities")
 plt.show()
+
+
+#https://www.youtube.com/watch?v=TXkDpqjDMHA 
