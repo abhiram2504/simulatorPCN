@@ -2,6 +2,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import random
 import numpy as np
+import main
 
 def initialize_graph():
     G = nx.karate_club_graph()
@@ -27,6 +28,20 @@ def initialize_demand_matrix(num_nodes):
                 demand_matrix[i, j] = probabilities[j - (j > i)]  # Adjust the indexing
     return demand_matrix
 
+def try_shortest_paths(G, src, dest, transaction_amt):
+    # Try the shortest path as an alternative
+    shortest_path = nx.shortest_path(G, source=src, target=dest, weight='weight')
+    #checks if there is a path between the src and the destination (for the shortest path)
+    feasible_transaction = all(G[u][v]['weight'] >= transaction_amt for u, v in zip(shortest_path, shortest_path[1:]))
+    if feasible_transaction:
+        #this creates pairs for the shortest path, like for abcd, it creates paris, ab bc, cd.
+        for u, v in zip(shortest_path, shortest_path[1:]):
+            G[u][v]['weight'] -= transaction_amt
+        return True
+    else:
+        print("Shortest path transaction failed due to insufficient capacity.")
+        return False
+        
 def perform_transaction(G, src, dest, transaction_amt):
     path_probabilities = np.array(demand_matrix[src, :])
     path_probabilities[dest] = 0  # Exclude self-loop
